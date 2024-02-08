@@ -1,0 +1,22 @@
+{
+    "latex-workshop.latex.recipes": [{
+        "name": "latexmk (clean)",
+        "tools": [
+          "latexmk (clean)"
+        ]
+    }],
+    "latex-workshop.latex.tools": [{
+        "name": "latexmk (clean)",
+        "command": "latexmk",
+        "args": [
+            "-synctex=1",
+            "-interaction=nonstopmode",
+            "-file-line-error",
+            "-pdf",
+            "-outdir=%OUTDIR%",
+            "-aux-directory=./build/",
+            "%DOC%"
+        ],
+        "env": {}
+    }]
+}

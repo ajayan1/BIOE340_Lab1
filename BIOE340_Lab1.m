@@ -53,31 +53,35 @@ function lab2 = HodgHux(t,y)
     Ena = 50;      % Sodium reversal potential
     Ek = -77;      % Potassium reversal potential
     El = -49;      % Leak reversal potential
-    Gna = 120;     % Sodium conductance 
-    Gk = 36;       % Potassium conductance 
+    Gna0 = 120;     % Sodium conductance 
+    Gk0 = 36;       % Potassium conductance 
     Gl = 0.3;      % Leak conductance 
     vm = V+62;
 %write out the functions for: alpha h, beta h, beta n, and beta m
     alpha_h = 0.07 .* exp(-vm ./ 20);
     beta_h = (exp((30-vm)/10) + 1).^-1;
-    alpha_n = 0.01 .* (10-vm) ./ (exp((10-vm)./10)-1);
+    
     beta_n = 0.125 .* exp(-vm ./ 80);
-    alpha_m = 0.1.*(25-vm) ./ (exp((25-vm)./10)-1);
+    
     beta_m = 4 .* exp(-vm./18);
 %loop for alpha n if Vd == 10 and alpha m if Vd == 25 
     if V == 25
         alpha_m = 1;
+    else
+        alpha_m = 0.1.*(25-vm) ./ (exp((25-vm)./10)-1);
     end
     if V ==10
         alpha_n = 0.1;
+    else
+        alpha_n = 0.01 .* (10-vm) ./ (exp((10-vm)./10)-1);
     end
 %write out the ODE for n, m, and h
     dn = alpha_n.*vm .* (1 - n) - beta_n .* n;
     dm = alpha_m .* (1 - m) - beta_m .* m;
     dh = alpha_h .* (1 - h) - beta_h .* h;
 %write out the conductance equations 
-    Gk = vm.*n^4;
-    Gna = vm .* m.^3.*h;
+    Gk = Gk0.*n^4;
+    Gna = Gna0 .* m.^3.*h;
 %write out the ODE for V
     dV = (-Gna.*(V-Ena)-Gk.*(V-Ek)-Gl.*(V-El))./C;
 % loop for dV @ t>1 && t<1.1

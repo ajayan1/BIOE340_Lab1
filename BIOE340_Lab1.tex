@@ -1,0 +1,54 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[letterpaper, margin=1in]{geometry}
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\usepackage{makecell}
+\usepackage{bookmark}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{enumitem}
+
+\usepackage{pgfplots, pgfplotstable}
+\pgfplotsset{width=9cm, compat=1.9}
+
+\graphicspath{ {./photos/} }
+
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+\urlstyle{same}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setlength{\headheight}{28pt}
+\setcounter{secnumdepth}{0}
+
+\headsep= 30pt
+\footskip= 30pt
+\begin{document}
+\input{BIOE340_Lab1_titlepage.tex}
+\section*{Abstract}
+\section*{Introduction}
+\section*{Experimental}
+Formula:
+\begin{center}
+    $E_i=\frac{RT}{zF}ln\frac{[C]_{out}}{[C]_{in}}$\\
+    $I=gV$\\
+    $I(t)=g_i(V_m-E_i)$
+\end{center}
+\section*{Results}
+\section*{Discussion}
+\section*{Conclusions}
+\section*{References}
+\section*{Tables and Figures}
+\section*{Appendix}
+[insert m-file]
+\end{document}
