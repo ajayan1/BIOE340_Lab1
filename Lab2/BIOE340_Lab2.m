@@ -16,8 +16,8 @@ healthy_aVF = healthy.aVF./1000;
 healthy_leads = [healthy_leadI,healthy_leadII,healthy_leadIII,healthy_aVR,healthy_aVL,healthy_aVF];
 detrend_healthy_leads = [];
 for i = 1:6
-    [p, ~, mu] = polyfit(healthy_time,healthy_leads(:,i),7);
-    detrend_healthy_leads(:,end+1) = healthy_leads(:,i) - polyval(p, healthy_time, [], mu);
+    [p1, ~, mu1] = polyfit(healthy_time,healthy_leads(:,i),7);
+    detrend_healthy_leads(:,end+1) = healthy_leads(:,i) - polyval(p1, healthy_time, [], mu1);
 end
 
 % Plot ECG data
@@ -57,47 +57,47 @@ end
 
 % Average leads/detrend data
 average_healthy_lead = mean(detrend_healthy_leads,2);
-[p, ~, mu] = polyfit(healthy_time,average_healthy_lead,7);
-detrend_avg_healthy = average_healthy_lead - polyval(p, healthy_time, [], mu);
+[p2, ~, mu2] = polyfit(healthy_time,average_healthy_lead,7);
+detrend_avg_healthy = average_healthy_lead - polyval(p2, healthy_time, [], mu2);
 smoothECG_healthy = sgolayfilt(detrend_avg_healthy,7,21);
 
 % Initialize PQRST arrays
-P_peaks = [];
-P_locs = [];
-Q_peaks = [];
-Q_locs = [];
-T_peaks = [];
-T_locs = [];
-S_peaks = [];
-S_locs = [];
-R_peaks = [];
-R_locs = [];
+P_peaks_healthy = [];
+P_locs_healthy = [];
+Q_peaks_healthy = [];
+Q_locs_healthy = [];
+T_peaks_healthy = [];
+T_locs_healthy = [];
+S_peaks_healthy = [];
+S_locs_healthy = [];
+R_peaks_healthy = [];
+R_locs_healthy = [];
 
 % Find P, R, and T
-[PRT_peaks,PRT_locs] = findpeaks(smoothECG_healthy,NPeaks=25,MinPeakHeight=0.01,MinPeakDistance=20);
+[PRT_peaks_healthy,PRT_locs_healthy] = findpeaks(smoothECG_healthy,NPeaks=25,MinPeakHeight=0.01,MinPeakDistance=20);
 
-for i = 1:length(PRT_peaks)
+for i = 1:length(PRT_peaks_healthy)
     if mod(i-1,3) == 0
-        T_peaks(end+1) = PRT_peaks(i);
-        T_locs(end+1) = PRT_locs(i);
+        T_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        T_locs_healthy(end+1) = PRT_locs_healthy(i);
     elseif  mod(i-2,3) == 0
-        P_peaks(end+1) = PRT_peaks(i);
-        P_locs(end+1) = PRT_locs(i);
+        P_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        P_locs_healthy(end+1) = PRT_locs_healthy(i);
     else
-        R_peaks(end+1) = PRT_peaks(i);
-        R_locs(end+1) = PRT_locs(i);
+        R_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        R_locs_healthy(end+1) = PRT_locs_healthy(i);
     end
 end
 
 % Find Q and S
-[QS_peaks,QS_locs] = findpeaks(-smoothECG_healthy,MinPeakHeight=0.020,MinPeakProminence=0.03);
-for i = 1:length(QS_peaks)
+[QS_peaks_healthy,QS_locs_healthy] = findpeaks(-smoothECG_healthy,MinPeakHeight=0.020,MinPeakProminence=0.03);
+for i = 1:length(QS_peaks_healthy)
     if mod(i-2,3) == 0
-        Q_peaks(end+1) = -QS_peaks(i);
-        Q_locs(end+1) = QS_locs(i);
+        Q_peaks_healthy(end+1) = -QS_peaks_healthy(i);
+        Q_locs_healthy(end+1) = QS_locs_healthy(i);
     elseif mod(i,3) == 0
-        S_peaks(end+1) = -QS_peaks(i);
-        S_locs(end+1) = QS_locs(i);
+        S_peaks_healthy(end+1) = -QS_peaks_healthy(i);
+        S_locs_healthy(end+1) = QS_locs_healthy(i);
     end
 end
     
@@ -105,54 +105,55 @@ end
 figure(Name = 'PQRST Plot')
 plot(healthy_time,smoothECG_healthy,'-');
 hold on
-scatter(healthy_time(P_locs),P_peaks,'v','filled');
-scatter(healthy_time(Q_locs),Q_peaks,'^','filled');
-scatter(healthy_time(R_locs),R_peaks,'v','filled');
-scatter(healthy_time(S_locs),S_peaks,'^','filled');
-scatter(healthy_time(T_locs),T_peaks,'v','filled');
+scatter(healthy_time(P_locs_healthy),P_peaks_healthy,'v','filled');
+scatter(healthy_time(Q_locs_healthy),Q_peaks_healthy,'^','filled');
+scatter(healthy_time(R_locs_healthy),R_peaks_healthy,'v','filled');
+scatter(healthy_time(S_locs_healthy),S_peaks_healthy,'^','filled');
+scatter(healthy_time(T_locs_healthy),T_peaks_healthy,'v','filled');
 legend('','P','Q','R','S','T');
 xlabel('Time (s)');
 ylabel('mV');
 title('Mean ECG Signal Healthy')
 
 % Measure Heart Rate
-QRS_int = [];
-for i = 1:length(S_locs)-1
-    QRS_int(end+1) = healthy_time(R_locs(i+1))-healthy_time(R_locs(i));
+RR_int_healthy = [];
+for i = 1:length(S_locs_healthy)-1
+    RR_int_healthy(end+1) = healthy_time(R_locs_healthy(i+1))-healthy_time(R_locs_healthy(i));
 end
-average_QRS_int = mean(QRS_int)
-bpm = 60/average_QRS_int
+average_RR_int_healthy = mean(RR_int_healthy);
+bpm_healthy = 60/average_RR_int_healthy
 
 % Maximum and Minimum
 healthy_max = max(smoothECG_healthy)
 healthy_min = min(smoothECG_healthy)
 
 % Average Interval Calculations
-average_PQ_int = mean(healthy_time(Q_locs)-healthy_time(P_locs))
-average_PR_int = mean(healthy_time(R_locs)-healthy_time(P_locs))
-average_QT_int = mean(healthy_time(T_locs(2:end))-healthy_time(Q_locs))
+average_PQ_int_healthy = mean(healthy_time(Q_locs_healthy)-healthy_time(P_locs_healthy))
+average_PR_int_healthy = mean(healthy_time(R_locs_healthy)-healthy_time(P_locs_healthy))
+average_QT_int_healthy = mean(healthy_time(T_locs_healthy(2:end))-healthy_time(Q_locs_healthy))
 
-% MEA (Should probably check this part w/Jeffrey)
+% MEA
 [peaks_healthy_I,~] = findpeaks(detrend_healthy_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
 [peaks_healthy_III,~] = findpeaks(detrend_healthy_leads(:,3),MinPeakHeight=0.3,MinPeakDistance=20);
-x1 = abs(mean(peaks_healthy_I))*cosd(0);
-y1 = abs(mean(peaks_healthy_I))*sind(0);
-x2 = abs(mean(peaks_healthy_III))*cosd(120);
-y2 = abs(mean(peaks_healthy_III))*sind(120);
-slope = tand(120);
-slope_tang = -1/slope;
-y3 = slope_tang*(x1-x2)+y2;
-magnitude = sqrt(x1^2 + y3^2);
-dir = atan2d(y3,x1);
-% magnitude2 = sqrt((x1+x2)^2+(y1+y2)^2);
-% dir2 = atan2d((y1+y2),(x1+x2));
+x1_healthy = abs(mean(peaks_healthy_I))*cosd(0);
+y1_healthy = abs(mean(peaks_healthy_I))*sind(0);
+x2_healthy = abs(mean(peaks_healthy_III))*cosd(120);
+y2_healthy = abs(mean(peaks_healthy_III))*sind(120);
+slope_healthy = tand(120);
+slope_tang_healthy = -1/slope_healthy;
+y3_healthy = slope_tang_healthy*(x1_healthy-x2_healthy)+y2_healthy;
+magnitude_healthy = sqrt(x1_healthy^2 + y3_healthy^2);
+dir_healthy = atan2d(y3_healthy,x1_healthy)
 figure(Name = 'Mean Axis of Depolarization')
-c = compass([x1,x2,magnitude*cosd(dir)],[y1,y2,magnitude*sind(dir)]);
-c(3).LineWidth = 2;
-c(3).Color = 'r';
+c_healthy = compass([x1_healthy,x2_healthy,magnitude_healthy*cosd(dir_healthy)],[y1_healthy,y2_healthy,magnitude_healthy*sind(dir_healthy)]);
+c_healthy(3).LineWidth = 2;
+c_healthy(3).Color = 'r';
 view(0,-90)
 title('Mean Axis of Depolarization Healthy')
 legend('Healthy Lead I','Healthy Lead III','MEA')
+
+% Data for report
+healthy_data = [bpm_healthy,healthy_max,healthy_min,average_PQ_int_healthy,average_PR_int_healthy,average_QT_int_healthy,dir_healthy];
 %% Part 3 (need to ask jeffrey about)
 
 diseased = readtable("Lab2_Disease_Data_ECG.xlsx");
@@ -167,8 +168,8 @@ diseased_aVF = diseased.aVF;
 diseased_leads = [diseased_LeadI,diseased_LeadII,diseased_LeadIII,diseased_aVR,diseased_aVL,diseased_aVF];
 detrend_diseased_leads = [];
 for i = 1:6
-    [p, s, mu] = polyfit(diseased_time,diseased_leads(:,i),4);
-    detrend_diseased_leads(:,end+1) = diseased_leads(:,i) - polyval(p, diseased_time, [], mu);
+    [p3, ~, mu3] = polyfit(diseased_time,diseased_leads(:,i),7);
+    detrend_diseased_leads(:,end+1) = diseased_leads(:,i) - polyval(p3, diseased_time, [], mu3);
 end
 
 figure
@@ -183,57 +184,57 @@ end
 
 % Average leads/detrend data
 average_diseased_lead = mean(detrend_diseased_leads,2);
-[p, s, mu] = polyfit(diseased_time,average_diseased_lead,7);
-detrend_avg_diseased = average_diseased_lead - polyval(p, diseased_time, [], mu);
+[p4, ~, mu4] = polyfit(diseased_time,average_diseased_lead,7);
+detrend_avg_diseased = average_diseased_lead - polyval(p4, diseased_time, [], mu4);
 smoothECG_diseased = sgolayfilt(detrend_avg_diseased,7,21);
 
 % Initialize PQRST arrays
-P_peaks = [];
-P_locs = [];
-Q_peaks = [];
-Q_locs = [];
-T_peaks = [];
-T_locs = [];
-S_peaks = [];
-S_locs = [];
-R_peaks = [];
-R_locs = [];
+P_peaks_diseased = [];
+P_locs_diseased = [];
+Q_peaks_diseased = [];
+Q_locs_diseased = [];
+T_peaks_diseased = [];
+T_locs_diseased = [];
+S_peaks_diseased = [];
+S_locs_diseased = [];
+R_peaks_diseased = [];
+R_locs_diseased = [];
 
 % Find PRT peaks
-[PRT_peaks,PRT_locs] = findpeaks(smoothECG_diseased,MinPeakHeight=0.01,MinPeakDistance=20);
+[PRT_peaks_diseased,PRT_locs_diseased] = findpeaks(smoothECG_diseased,MinPeakHeight=0.01,MinPeakDistance=20);
 
-for i = 1:length(PRT_peaks)
+for i = 1:length(PRT_peaks_diseased)
     if mod(i-1,3) == 0
-        T_peaks(end+1) = PRT_peaks(i);
-        T_locs(end+1) = PRT_locs(i);
+        T_peaks_diseased(end+1) = PRT_peaks_diseased(i);
+        T_locs_diseased(end+1) = PRT_locs_diseased(i);
     elseif  mod(i-2,3) == 0
-        P_peaks(end+1) = PRT_peaks(i);
-        P_locs(end+1) = PRT_locs(i);
+        P_peaks_diseased(end+1) = PRT_peaks_diseased(i);
+        P_locs_diseased(end+1) = PRT_locs_diseased(i);
     else
-        R_peaks(end+1) = PRT_peaks(i);
-        R_locs(end+1) = PRT_locs(i);
+        R_peaks_diseased(end+1) = PRT_peaks_diseased(i);
+        R_locs_diseased(end+1) = PRT_locs_diseased(i);
     end
 end
 
-[QS_peaks,QS_locs] = findpeaks(-smoothECG_diseased,MinPeakHeight=0.020,MinPeakProminence=0.03);
-for i = 1:length(QS_peaks)
+[QS_peaks_diseased,QS_locs_diseased] = findpeaks(-smoothECG_diseased,MinPeakHeight=0.020,MinPeakProminence=0.03);
+for i = 1:length(QS_peaks_diseased)
     if mod(i-2,3) == 0
-        Q_peaks(end+1) = -QS_peaks(i);
-        Q_locs(end+1) = QS_locs(i);
+        Q_peaks_diseased(end+1) = -QS_peaks_diseased(i);
+        Q_locs_diseased(end+1) = QS_locs_diseased(i);
     elseif mod(i,3) == 0
-        S_peaks(end+1) = -QS_peaks(i);
-        S_locs(end+1) = QS_locs(i);
+        S_peaks_diseased(end+1) = -QS_peaks_diseased(i);
+        S_locs_diseased(end+1) = QS_locs_diseased(i);
     end
 end
     
 figure(Name = 'PQRST Plot')
 plot(diseased_time,smoothECG_diseased,'-');
 hold on
-scatter(diseased_time(P_locs),P_peaks,'v','filled');
-scatter(diseased_time(Q_locs),Q_peaks,'^','filled');
-scatter(diseased_time(R_locs),R_peaks,'v','filled');
-scatter(diseased_time(S_locs),S_peaks,'^','filled');
-scatter(diseased_time(T_locs),T_peaks,'v','filled');
+scatter(diseased_time(P_locs_diseased),P_peaks_diseased,'v','filled');
+scatter(diseased_time(Q_locs_diseased),Q_peaks_diseased,'^','filled');
+scatter(diseased_time(R_locs_diseased),R_peaks_diseased,'v','filled');
+scatter(diseased_time(S_locs_diseased),S_peaks_diseased,'^','filled');
+scatter(diseased_time(T_locs_diseased),T_peaks_diseased,'v','filled');
 legend('','P','Q','R','S','T');
 xlabel('Time (s)');
 ylabel('mV');
@@ -242,44 +243,44 @@ ylabel('mV');
 title('Mean ECG Signal Diseased')
 
 % Measured Heart Rate
-QRS_int = [];
-for i = 1:length(R_locs)-1
-    QRS_int(end+1) = diseased_time(R_locs(i+1))-diseased_time(R_locs(i));
+QRS_int_diseased = [];
+for i = 1:length(R_locs_diseased)-1
+    QRS_int_diseased(end+1) = diseased_time(R_locs_diseased(i+1))-diseased_time(R_locs_diseased(i));
 end
-average_QRS_int = mean(QRS_int)
-bpm = 60/average_QRS_int
+average_QRS_int_diseased = mean(QRS_int_diseased);
+bpm_diseased = 60/average_QRS_int_diseased
 
 % Maximum and Minimum
 diseased_max = max(smoothECG_diseased)
 diseased_min = min(smoothECG_diseased)
 
 % Average Interval Calculations (Probably cant do this)
-average_PQ_int = mean(diseased_time(Q_locs)-diseased_time(P_locs))
-average_PR_int = mean(diseased_time(R_locs)-diseased_time(P_locs))
-average_QT_int = mean(diseased_time(T_locs(2:end))-diseased_time(Q_locs))
+average_PQ_int_diseased = mean(diseased_time(Q_locs_diseased)-diseased_time(P_locs_diseased))
+average_PR_int_diseased = mean(diseased_time(R_locs_diseased)-diseased_time(P_locs_diseased))
+average_QT_int_diseased = mean(diseased_time(T_locs_diseased(2:end))-diseased_time(Q_locs_diseased))
 
-% MEA (Should probably check this part w/Jeffrey)
+% MEA
 [peaks_diseased_I,~] = findpeaks(detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
 [peaks_diseased_III,~] = findpeaks(detrend_diseased_leads(:,3),MinPeakHeight=0.3,MinPeakDistance=20);
-x1 = abs(mean(peaks_diseased_I))*cosd(0);
-y1 = abs(mean(peaks_diseased_I))*sind(0);
-x2 = abs(mean(peaks_diseased_III))*cosd(120);
-y2 = abs(mean(peaks_diseased_III))*sind(120);
-slope = tand(120);
-slope_tang = -1/slope;
-y3 = slope_tang*(x1-x2)+y2;
-magnitude = sqrt(x1^2 + y3^2);
-dir = atan2d(y3,x1);
-% magnitude2 = sqrt((x1+x2)^2+(y1+y2)^2);
-% dir2 = atan2d((y1+y2),(x1+x2));
-figure(Name = 'Mean Axis of Depolarization')
-c = compass([x1,x2,magnitude*cosd(dir)],[y1,y2,magnitude*sind(dir)]);
-c(3).LineWidth = 2;
-c(3).Color = 'r';
+x1_diseased = abs(mean(peaks_diseased_I))*cosd(0);
+y1_diseased = abs(mean(peaks_diseased_I))*sind(0);
+x2_diseased = abs(mean(peaks_diseased_III))*cosd(120);
+y2_diseased = abs(mean(peaks_diseased_III))*sind(120);
+slope_diseased = tand(120);
+slope_tang_diseased = -1/slope_diseased;
+y3_diseased = slope_tang_diseased*(x1_diseased-x2_diseased)+y2_diseased;
+magnitude_diseased = sqrt(x1_diseased^2 + y3_diseased^2);
+dir_diseased = atan2d(y3_diseased,x1_diseased)
+figure(Name = 'Mean Axis of Depolarization Diseased')
+c_diseased = compass([x1_diseased,x2_diseased,magnitude_diseased*cosd(dir_diseased)],[y1_diseased,y2_diseased,magnitude_diseased*sind(dir_diseased)]);
+c_diseased(3).LineWidth = 2;
+c_diseased(3).Color = 'r';
 view(0,-90)
 title('Mean Axis of Depolarization Diseased')
 legend('Healthy Lead I','Healthy Lead III','MEA')
 
+% Data for report
+diseased_data = [bpm_diseased,diseased_max,diseased_min,average_PQ_int_diseased,average_PR_int_diseased,average_QT_int_diseased,dir_diseased];
 %% Diagnosis (maybe ok)
 [peaks1,locs1] = findpeaks(detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
 [peaks2,locs2] = findpeaks(detrend_diseased_leads(:,2),MinPeakHeight=0.15,MinPeakDistance=20);
@@ -300,7 +301,7 @@ for i = 1:length(peaks1)
 end
 
 sum_QRS_voltage = mean(v1) + mean(v2) + mean(v3)
-average_QRS_int = mean(diseased_time(S_locs)-diseased_time(Q_locs))
+average_QRS_int = mean(diseased_time(S_locs_diseased)-diseased_time(Q_locs_diseased))
 
 issues = string();
 possible_diseases = string();
@@ -333,3 +334,12 @@ else
     fprintf('\nPossible Diseases:\n')
     fprintf('%s\n',possible_diseases(2:end))
 end
+
+%% Table for report
+filename = 'Lab2_report_table.xlsx';
+rownames = ["Measured Heart Rate (bpm)","Maximum Voltage (mV)","Minimum Voltage (mV)","Average P-Q Interval (s)","Average P-R Interval (s)","Average Q-T Interval (s)","Mean Electrical Axis (degrees)"];
+T = table(rownames',healthy_data.',diseased_data');
+T.Properties.Description = 'Table for report';
+T.Properties.VariableNames = ["Type","Healthy State","Diseased State"];
+T.Properties.RowNames = rownames;
+writetable(T,filename,'Sheet','Data');
