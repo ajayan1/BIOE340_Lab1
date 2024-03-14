@@ -1,0 +1,915 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>BIOE340_Lab2</title>
+<meta name="generator" content="MATLAB 23.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-03-13">
+<meta name="DC.source" content="BIOE340_Lab2.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Part 1</a>
+</li>
+<li>
+<a href="#2">Part 2</a>
+</li>
+<li>
+<a href="#3">Part 3 (Written Specifically for Ventricular Tachycardia)</a>
+</li>
+<li>
+<a href="#4">Diagnosis</a>
+</li>
+<li>
+<a href="#5">Tables for report</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Part 1</h2>
+<pre class="codeinput">clear; clc; close <span class="string">all</span>
+
+<span class="comment">% Import healthy data</span>
+healthy = readtable(<span class="string">"Lab2_Healthy_Data_ECG.xlsx"</span>);
+
+healthy_time = healthy.Time;
+healthy_leadI = healthy.LeadI./1000;
+healthy_leadII = healthy.LeadII./1000;
+healthy_leadIII = healthy.LeadIII./1000;
+healthy_aVR = healthy.aVR./1000;
+healthy_aVL = healthy.aVL./1000;
+healthy_aVF = healthy.aVF./1000;
+
+<span class="comment">% Detrend healthy data</span>
+healthy_leads = [healthy_leadI,healthy_leadII,healthy_leadIII,healthy_aVR,healthy_aVL,healthy_aVF];
+detrend_healthy_leads = [];
+<span class="keyword">for</span> i = 1:6
+    [p1, ~, mu1] = polyfit(healthy_time,healthy_leads(:,i),7);
+    detrend_healthy_leads(:,end+1) = healthy_leads(:,i) - polyval(p1, healthy_time, [], mu1);
+<span class="keyword">end</span>
+
+<span class="comment">% Plot ECG data</span>
+figure(Name = <span class="string">'6-Lead ECG Healthy'</span>)
+subplot_titles_1 = [<span class="string">"Healthy Lead I"</span>,<span class="string">"Healthy Lead II"</span>,<span class="string">"Healthy Lead III"</span>,<span class="string">"Healthy Lead aVR"</span>,<span class="keyword">...</span>
+    <span class="string">"Healthy Lead aVL"</span>,<span class="string">"Healthy Lead aVF"</span>];
+<span class="keyword">for</span> i = 1:6
+    subplot(2,3,i)
+    plot(healthy_time,detrend_healthy_leads(:,i))
+    title(subplot_titles_1(i))
+    xlabel(<span class="string">'Time (s)'</span>)
+    ylabel(<span class="string">'mV'</span>)
+<span class="keyword">end</span>
+
+<span class="comment">% Derive LeadIII, aVF, aVL, aVR</span>
+Cal_LeadIII = detrend_healthy_leads(:,2) - detrend_healthy_leads(:,1);
+Cal_aVF = ((2.*detrend_healthy_leads(:,2))-detrend_healthy_leads(:,1))./(sqrt(3));
+Cal_aVL = ((2.*detrend_healthy_leads(:,1))-detrend_healthy_leads(:,2))./(sqrt(3));
+Cal_aVR = -(detrend_healthy_leads(:,2)+detrend_healthy_leads(:,1))./(sqrt(3));
+
+a = isequal(Cal_LeadIII,detrend_healthy_leads(:,3));
+
+<span class="comment">% Compare derived leads to actual</span>
+figure(Name = <span class="string">'Derived 6-Lead ECG'</span>)
+compare_derived = [Cal_LeadIII,detrend_healthy_leads(:,3),Cal_aVR,detrend_healthy_leads(:,4),<span class="keyword">...</span>
+    Cal_aVL,detrend_healthy_leads(:,5),Cal_aVF,detrend_healthy_leads(:,6)];
+subplot_titles_2 = [<span class="string">"Derived Lead III"</span>,<span class="string">"Healthy Lead III"</span>,<span class="string">"Derived Lead aVR"</span>,<span class="string">"Healthy Lead aVR"</span><span class="keyword">...</span>
+    ,<span class="string">"Derived Lead aVL"</span>,<span class="string">"Healthy Lead aVL"</span>,<span class="string">"Derived Lead aVF"</span>,<span class="string">"Healthy Lead aVF"</span>];
+<span class="keyword">for</span> i = 1:8
+    subplot(4,2,i)
+    plot(healthy_time,compare_derived(:,i))
+    title(subplot_titles_2(i))
+    xlabel(<span class="string">'Time (s)'</span>)
+    ylabel(<span class="string">'mV'</span>)
+<span class="keyword">end</span>
+<span class="keyword">for</span> i = 1:2:8
+    b = isequal(compare_derived(:,i),compare_derived(:,i+1));
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">Warning: Column headers from the file were modified to make them valid MATLAB
+identifiers before creating variable names for the table. The original column
+headers are saved in the VariableDescriptions property.
+Set 'VariableNamingRule' to 'preserve' to use the original column headers as
+table variable names. 
+</pre>
+<img vspace="5" hspace="5" src="BIOE340_Lab2_01.png" alt=""> <img vspace="5" hspace="5" src="BIOE340_Lab2_02.png" alt=""> <h2 id="2">Part 2</h2>
+<pre class="codeinput">
+<span class="comment">% Average leads/detrend data</span>
+average_healthy_lead = mean(detrend_healthy_leads,2);
+[p2, ~, mu2] = polyfit(healthy_time,average_healthy_lead,7);
+detrend_avg_healthy = average_healthy_lead - polyval(p2, healthy_time, [], mu2);
+smoothECG_healthy = sgolayfilt(detrend_avg_healthy,7,21);
+
+<span class="comment">% Initialize PQRST arrays</span>
+P_peaks_healthy = [];
+P_locs_healthy = [];
+Q_peaks_healthy = [];
+Q_locs_healthy = [];
+T_peaks_healthy = [];
+T_locs_healthy = [];
+S_peaks_healthy = [];
+S_locs_healthy = [];
+R_peaks_healthy = [];
+R_locs_healthy = [];
+
+<span class="comment">% Find P, R, and T</span>
+[PRT_peaks_healthy,PRT_locs_healthy] = findpeaks(smoothECG_healthy,NPeaks=25,MinPeakHeight=0.01,MinPeakDistance=20);
+
+<span class="keyword">for</span> i = 1:length(PRT_peaks_healthy)
+    <span class="keyword">if</span> mod(i-1,3) == 0
+        T_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        T_locs_healthy(end+1) = PRT_locs_healthy(i);
+    <span class="keyword">elseif</span>  mod(i-2,3) == 0
+        P_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        P_locs_healthy(end+1) = PRT_locs_healthy(i);
+    <span class="keyword">else</span>
+        R_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        R_locs_healthy(end+1) = PRT_locs_healthy(i);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Find Q and S</span>
+[QS_peaks_healthy,QS_locs_healthy] = findpeaks(-smoothECG_healthy,MinPeakHeight=0.020,MinPeakProminence=0.03);
+<span class="keyword">for</span> i = 1:length(QS_peaks_healthy)
+    <span class="keyword">if</span> mod(i-2,3) == 0
+        Q_peaks_healthy(end+1) = -QS_peaks_healthy(i);
+        Q_locs_healthy(end+1) = QS_locs_healthy(i);
+    <span class="keyword">elseif</span> mod(i,3) == 0
+        S_peaks_healthy(end+1) = -QS_peaks_healthy(i);
+        S_locs_healthy(end+1) = QS_locs_healthy(i);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Plot PQRTS</span>
+figure(Name = <span class="string">'PQRST Plot'</span>)
+plot(healthy_time,smoothECG_healthy,<span class="string">'-'</span>);
+hold <span class="string">on</span>
+scatter(healthy_time(P_locs_healthy),P_peaks_healthy,<span class="string">'v'</span>,<span class="string">'filled'</span>);
+scatter(healthy_time(Q_locs_healthy),Q_peaks_healthy,<span class="string">'^'</span>,<span class="string">'filled'</span>);
+scatter(healthy_time(R_locs_healthy),R_peaks_healthy,<span class="string">'v'</span>,<span class="string">'filled'</span>);
+scatter(healthy_time(S_locs_healthy),S_peaks_healthy,<span class="string">'^'</span>,<span class="string">'filled'</span>);
+scatter(healthy_time(T_locs_healthy),T_peaks_healthy,<span class="string">'v'</span>,<span class="string">'filled'</span>);
+legend(<span class="string">''</span>,<span class="string">'P'</span>,<span class="string">'Q'</span>,<span class="string">'R'</span>,<span class="string">'S'</span>,<span class="string">'T'</span>,<span class="string">'Location'</span>,<span class="string">'northeastoutside'</span>);
+xlabel(<span class="string">'Time (s)'</span>);
+ylabel(<span class="string">'mV'</span>);
+title(<span class="string">'Mean ECG Signal Healthy'</span>)
+
+<span class="comment">% Measure Heart Rate</span>
+RR_int_healthy = [];
+<span class="keyword">for</span> i = 1:length(S_locs_healthy)-1
+    RR_int_healthy(end+1) = healthy_time(R_locs_healthy(i+1))-healthy_time(R_locs_healthy(i));
+<span class="keyword">end</span>
+average_RR_int_healthy = mean(RR_int_healthy);
+bpm_healthy = 60/average_RR_int_healthy;
+
+<span class="comment">% Maximum and Minimum</span>
+healthy_max = max(smoothECG_healthy);
+healthy_min = min(smoothECG_healthy);
+
+<span class="comment">% Average Interval Calculations</span>
+average_PQ_int_healthy = mean(healthy_time(Q_locs_healthy)-healthy_time(P_locs_healthy));
+average_PR_int_healthy = mean(healthy_time(R_locs_healthy)-healthy_time(P_locs_healthy));
+average_QT_int_healthy = mean(healthy_time(T_locs_healthy(2:end))-healthy_time(Q_locs_healthy));
+
+<span class="comment">% MEA</span>
+[peaks_healthy_I,~] = findpeaks(detrend_healthy_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks_healthy_III,~] = findpeaks(detrend_healthy_leads(:,3),MinPeakHeight=0.3,MinPeakDistance=20);
+x1_healthy = mean(peaks_healthy_I)*cosd(0);
+y1_healthy = mean(peaks_healthy_I)*sind(0);
+x2_healthy = mean(peaks_healthy_III)*cosd(120);
+y2_healthy = mean(peaks_healthy_III)*sind(120);
+slope_healthy = tand(120);
+slope_tang_healthy = -1/slope_healthy;
+y3_healthy = slope_tang_healthy*(x1_healthy-x2_healthy)+y2_healthy;
+magnitude_healthy = sqrt(x1_healthy^2 + y3_healthy^2);
+dir_healthy = atan2d(y3_healthy,x1_healthy);
+figure(Name = <span class="string">'Mean Axis of Depolarization'</span>)
+c_healthy = compass([x1_healthy,x2_healthy,magnitude_healthy*cosd(dir_healthy)],[y1_healthy,y2_healthy,magnitude_healthy*sind(dir_healthy)]);
+c_healthy(3).LineWidth = 2;
+c_healthy(3).Color = <span class="string">'r'</span>;
+view(0,-90)
+title(<span class="string">'Mean Axis of Depolarization Healthy'</span>)
+legend(<span class="string">'Healthy Lead I'</span>,<span class="string">'Healthy Lead III'</span>,<span class="string">'MEA'</span>)
+
+<span class="comment">% Data for report</span>
+healthy_data = {bpm_healthy,healthy_max,healthy_min,average_PQ_int_healthy,average_PR_int_healthy,average_QT_int_healthy,dir_healthy};
+</pre>
+<img vspace="5" hspace="5" src="BIOE340_Lab2_03.png" alt=""> <img vspace="5" hspace="5" src="BIOE340_Lab2_04.png" alt=""> <h2 id="3">Part 3 (Written Specifically for Ventricular Tachycardia)</h2>
+<p>Criteria for peaks from: <a href="https://ecgwaves.com/topic/ventricular-tachycardia-vt-ecg-treatment-causes-management/#">https://ecgwaves.com/topic/ventricular-tachycardia-vt-ecg-treatment-causes-management/#</a>:~:text=ECG%20features%20of%20ventricular%20tachycardia,-%E2%89%A53%20consecutive&amp;text=Ventricular%20tachycardia%20with%20rate%20100,%E2%89%A50%2C12%20s).</p>
+<pre class="codeinput">diseased = readtable(<span class="string">"Lab2_Disease_Data_ECG.xlsx"</span>);
+diseased_time = diseased.Time;
+diseased_LeadI = diseased.LeadI;
+diseased_LeadII = diseased.LeadII;
+diseased_LeadIII = diseased.LeadIII;
+diseased_aVR = diseased.aVR;
+diseased_aVL = diseased.aVL;
+diseased_aVF = diseased.aVF;
+
+diseased_leads = [diseased_LeadI,diseased_LeadII,diseased_LeadIII,diseased_aVR,diseased_aVL,diseased_aVF];
+detrend_diseased_leads = [];
+<span class="keyword">for</span> i = 1:6
+    [p3, ~, mu3] = polyfit(diseased_time,diseased_leads(:,i),7);
+    detrend_diseased_leads(:,end+1) = diseased_leads(:,i) - polyval(p3, diseased_time, [], mu3);
+<span class="keyword">end</span>
+
+figure
+subplot_titles_2 = [<span class="string">"Diseased Lead I"</span>,<span class="string">"Diseased Lead II"</span>,<span class="string">"Diseased Lead III"</span>,<span class="string">"Diseased Lead aVR"</span>,<span class="string">"Diseased Lead aVL"</span>,<span class="string">"Diseased Lead aVF"</span>];
+<span class="keyword">for</span> i = 1:6
+    subplot(3,2,i)
+    plot(diseased_time,detrend_diseased_leads(:,i))
+    title(subplot_titles_2(i))
+    xlabel(<span class="string">'Time (s)'</span>)
+    ylabel(<span class="string">'mV'</span>)
+<span class="keyword">end</span>
+
+<span class="comment">% Average leads/detrend data</span>
+average_diseased_lead = mean(detrend_diseased_leads,2);
+[p4, ~, mu4] = polyfit(diseased_time,average_diseased_lead,7);
+detrend_avg_diseased = average_diseased_lead - polyval(p4, diseased_time, [], mu4);
+smoothECG_diseased = sgolayfilt(detrend_avg_diseased,7,21);
+
+<span class="comment">% Find QRS peaks and ST peaks</span>
+[QRS_peaks_diseased,QRS_locs_diseased] = findpeaks(smoothECG_diseased,MinPeakHeight=0.01,MinPeakDistance=20);
+
+[ST_peaks_diseased,ST_locs_diseased] = findpeaks(-smoothECG_diseased,MinPeakHeight=0.020,MinPeakProminence=0.03);
+
+figure(Name = <span class="string">'PQRST Plot'</span>)
+plot(diseased_time,smoothECG_diseased,<span class="string">'-'</span>);
+hold <span class="string">on</span>
+scatter(diseased_time(QRS_locs_diseased),QRS_peaks_diseased,<span class="string">'v'</span>,<span class="string">'filled'</span>);
+scatter(diseased_time(ST_locs_diseased),-ST_peaks_diseased,<span class="string">'^'</span>,<span class="string">'filled'</span>);
+legend(<span class="string">''</span>,<span class="string">'QRS'</span>,<span class="string">'ST'</span>,<span class="string">'Location'</span>,<span class="string">'northeastoutside'</span>);
+xlabel(<span class="string">'Time (s)'</span>);
+ylabel(<span class="string">'mV'</span>);
+xlabel(<span class="string">'Time (s)'</span>);
+ylabel(<span class="string">'mV'</span>);
+title(<span class="string">'Mean ECG Signal Diseased'</span>)
+
+<span class="comment">% Measured Heart Rate</span>
+RR_int_diseased = [];
+<span class="keyword">for</span> i = 1:length(QRS_locs_diseased)-1
+    RR_int_diseased(end+1) = diseased_time(QRS_locs_diseased(i+1))-diseased_time(QRS_locs_diseased(i));
+<span class="keyword">end</span>
+average_RR_int_diseased = mean(RR_int_diseased);
+bpm_diseased = 60/average_RR_int_diseased;
+
+<span class="comment">% Maximum and Minimum</span>
+diseased_max = max(smoothECG_diseased);
+diseased_min = min(smoothECG_diseased);
+
+<span class="comment">% Average Interval Calculations (NO Specific P, Q, R, S, T peaks)</span>
+<span class="comment">% % average_PQ_int_diseased = mean(diseased_time(Q_locs_diseased)-diseased_time(P_locs_diseased))</span>
+<span class="comment">% % average_PR_int_diseased = mean(diseased_time(R_locs_diseased)-diseased_time(P_locs_diseased))</span>
+<span class="comment">% % average_QT_int_diseased = mean(diseased_time(T_locs_diseased(2:end))-diseased_time(Q_locs_diseased))</span>
+
+<span class="comment">% MEA</span>
+[peaks_diseased_I,~] = findpeaks(detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks_diseased_III,~] = findpeaks(detrend_diseased_leads(:,3),MinPeakHeight=0.3,MinPeakDistance=20);
+x1_diseased = mean(peaks_diseased_I)*cosd(0);
+y1_diseased = mean(peaks_diseased_I)*sind(0);
+x2_diseased = mean(peaks_diseased_III)*cosd(120);
+y2_diseased = mean(peaks_diseased_III)*sind(120);
+slope_diseased = tand(120);
+slope_tang_diseased = -1/slope_diseased;
+y3_diseased = slope_tang_diseased*(x1_diseased-x2_diseased)+y2_diseased;
+magnitude_diseased = sqrt(x1_diseased^2 + y3_diseased^2);
+dir_diseased = atan2d(y3_diseased,x1_diseased);
+figure(Name = <span class="string">'Mean Axis of Depolarization Diseased'</span>)
+c_diseased = compass([x1_diseased,x2_diseased,magnitude_diseased*cosd(dir_diseased)],[y1_diseased,y2_diseased,magnitude_diseased*sind(dir_diseased)]);
+c_diseased(3).LineWidth = 2;
+c_diseased(3).Color = <span class="string">'r'</span>;
+view(0,-90)
+title(<span class="string">'Mean Axis of Depolarization Diseased'</span>)
+legend(<span class="string">'Healthy Lead I'</span>,<span class="string">'Healthy Lead III'</span>,<span class="string">'MEA'</span>)
+
+<span class="comment">% Data for report</span>
+diseased_data = {bpm_diseased,diseased_max,diseased_min,<span class="string">"N/A"</span>,<span class="string">"N/A"</span>,<span class="string">"N/A"</span>,dir_diseased};
+</pre>
+<pre class="codeoutput">Warning: Column headers from the file were modified to make them valid MATLAB
+identifiers before creating variable names for the table. The original column
+headers are saved in the VariableDescriptions property.
+Set 'VariableNamingRule' to 'preserve' to use the original column headers as
+table variable names. 
+</pre>
+<img vspace="5" hspace="5" src="BIOE340_Lab2_05.png" alt=""> <img vspace="5" hspace="5" src="BIOE340_Lab2_06.png" alt=""> <img vspace="5" hspace="5" src="BIOE340_Lab2_07.png" alt=""> <h2 id="4">Diagnosis</h2>
+<p>Find Voltages</p>
+<pre class="codeinput">[peaks1,locs1] = findpeaks(detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks2,locs2] = findpeaks(detrend_diseased_leads(:,2),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks3,locs3] = findpeaks(detrend_diseased_leads(:,3),MinPeakHeight=0.15,MinPeakDistance=20);
+[npeaks1,nlocs1] = findpeaks(-detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[npeaks2,nlocs2] = findpeaks(-detrend_diseased_leads(:,2),MinPeakHeight=0.15,MinPeakDistance=20);
+[npeaks3,nlocs3] = findpeaks(-detrend_diseased_leads(:,3),MinPeakHeight=0.15,MinPeakDistance=20);
+
+v1 = [];
+v2 = [];
+v3 = [];
+<span class="keyword">for</span> i = 1:length(peaks1)
+    <span class="keyword">if</span> mod(i,3) == 0
+        v1(end+1) = peaks1(i) - npeaks1(i);
+        v2(end+1) = peaks2(i) - npeaks2(i);
+        v3(end+1) = peaks3(i) - npeaks3(i);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+sum_QRS_voltage = mean(v1) + mean(v2) + mean(v3);
+QRS_int_diseased = [];
+<span class="keyword">for</span> i = 1:length(ST_locs_diseased)-1
+    QRS_int_diseased(end+1) = diseased_time(ST_locs_diseased(i+1))-diseased_time(ST_locs_diseased(i));
+<span class="keyword">end</span>
+average_QRS_int_diseased = mean(QRS_int_diseased);
+
+issues = string();
+possible_diseases = string();
+
+<span class="comment">% Heart Rate Check</span>
+<span class="keyword">if</span> bpm_diseased &gt; 100
+    issues(end+1) = <span class="string">"High BPM"</span>;
+    possible_diseases(end+1) = <span class="string">"Tachycardia"</span>;
+<span class="keyword">elseif</span> bpm_diseased &lt; 60
+    issues(end+1) = <span class="string">"Low BPM"</span>;
+    possible_diseases(end+1) = <span class="string">"Bradycardia"</span>;
+<span class="keyword">end</span>
+
+<span class="comment">% Voltage Check</span>
+<span class="keyword">if</span> sum_QRS_voltage &lt; 0.5
+    issues(end+1) = <span class="string">"Low Voltage"</span>;
+    possible_diseases(end+1) = <span class="string">"Pericardial fluid buildup"</span>;
+    possible_diseases(end+1) = <span class="string">"Pulmonary emphysema"</span>;
+    possible_diseases(end+1) = <span class="string">"Previous myocardial infarctions/diminished cardiac muscle mass"</span>;
+<span class="keyword">elseif</span> sum_QRS_voltage &gt;2.0
+    issues(end+1) = <span class="string">"High Voltage"</span>;
+    possible_diseases(end+1) = <span class="string">"Hypertrophy (High Voltage)"</span>;
+<span class="keyword">end</span>
+
+<span class="comment">% QRS Wave Check</span>
+<span class="keyword">if</span> average_QRS_int_diseased &gt; 0.08
+    issues(end+1) = <span class="string">"Prolonged QRS Wave"</span>;
+    <span class="keyword">if</span> average_QRS_int_diseased &lt;= 0.12
+        possible_diseases(end+1) = <span class="string">"Hypertrophy (Prolonged QRS Wave)"</span>;
+        possible_diseases(end+1) = <span class="string">"Dilation"</span>;
+    <span class="keyword">elseif</span> average_QRS_int_diseased &gt; 0.12
+        possible_diseases(end+1) = <span class="string">"Damage to cardiac muscle"</span>;
+        possible_diseases(end+1) = <span class="string">"Blocks in the Purkinje system"</span>;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% MEA Check</span>
+<span class="keyword">if</span> dir_diseased &gt;= 270 &amp;&amp; dir_diseased &lt;= 330
+    issues(end+1) = <span class="string">"Left Axis Deviation (LAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Left ventricular hypertrophy"</span>;
+    possible_diseases(end+1) = <span class="string">"Conduction defects: left bundle branch block, left anterior fascicular block"</span>;
+    possible_diseases(end+1) = <span class="string">"Inferior wall myocardial infarction"</span>;
+    possible_diseases(end+1) = <span class="string">"Preexcitation syndromes (LAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Ventricular ectopic rhythms (LAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Congenital heart disease (eg, primum atrial septal defect, endocardial cushion defect)"</span>;
+    possible_diseases(end+1) = <span class="string">"Hyperkalemia (LAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Emphysema (LAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Mechanical shift, such as with expiration or raised diaphragm"</span>;
+
+<span class="keyword">elseif</span> dir_diseased &gt;= 110 &amp;&amp; dir_diseased &lt;= 180
+    issues(end+1) = <span class="string">"Right Axis Deviation (RAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Right ventricular overload syndromes"</span>;
+    possible_diseases(end+1) = <span class="string">"Right ventricular hypertrophy"</span>;
+    possible_diseases(end+1) = <span class="string">"Conduction defects: left posterior fascicular block, right bundle branch block"</span>;
+    possible_diseases(end+1) = <span class="string">"Lateral wall myocardial infarction"</span>;
+    possible_diseases(end+1) = <span class="string">"Preexcitation syndromes (RAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Ventricular ectopic rhythms (RAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Congenital heart disease (eg, secundum atrial septal defect)"</span>;
+    possible_diseases(end+1) = <span class="string">"Dextrocardia"</span>;
+    possible_diseases(end+1) = <span class="string">"Left pneumothorax"</span>;
+    possible_diseases(end+1) = <span class="string">"Mechanical shift, such as with inspiration or emphysema"</span>;
+
+<span class="keyword">elseif</span> dir_diseased &gt; 180 &amp;&amp; dir_diseased &lt; 270
+    issues(end+1) = <span class="string">"Extreme Axis Deviation (EAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Ventricular ectopic rhythms (EAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Hyperkalemia (EAD)"</span>;
+    possible_diseases(end+1) = <span class="string">"Emphysema (EAD)"</span>;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> isempty(issues) == true
+    fprintf(<span class="string">'Patient is healthy.\n'</span>)
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Issues:\n'</span>)
+    fprintf(<span class="string">'%s\n'</span>,issues(2:end))
+    fprintf(<span class="string">'\nPossible Diseases:\n'</span>)
+    fprintf(<span class="string">'%s\n'</span>,possible_diseases(2:end))
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">Issues:
+High BPM
+Low Voltage
+Prolonged QRS Wave
+
+Possible Diseases:
+Tachycardia
+Pericardial fluid buildup
+Pulmonary emphysema
+Previous myocardial infarctions/diminished cardiac muscle mass
+Damage to cardiac muscle
+Blocks in the Purkinje system
+</pre>
+<h2 id="5">Tables for report</h2>
+<pre class="codeinput">filename = <span class="string">'Lab2_report_table.xlsx'</span>;
+rownames = [<span class="string">"Measured Heart Rate (bpm)"</span>,<span class="string">"Maximum Voltage (mV)"</span>,<span class="string">"Minimum Voltage (mV)"</span><span class="keyword">...</span>
+    ,<span class="string">"Average P-Q Interval (s)"</span>,<span class="string">"Average P-R Interval (s)"</span>,<span class="string">"Average Q-T Interval (s)"</span>,<span class="string">"Mean Electrical Axis (degrees)"</span>];
+T = table(rownames',healthy_data.',diseased_data');
+T.Properties.Description = <span class="string">'Table for report'</span>;
+T.Properties.VariableNames = [<span class="string">"Type"</span>,<span class="string">"Healthy State"</span>,<span class="string">"Diseased State"</span>];
+writetable(T,filename,<span class="string">'Sheet'</span>,<span class="string">'Data'</span>);
+
+filename2 = <span class="string">'Lab2_diagnostic_criteria.xlsx'</span>;
+diagnosis = [<span class="string">"High BPM"</span>,<span class="string">"Low BPM"</span>,<span class="string">"Low Voltage"</span>,<span class="string">"High Voltage"</span>,<span class="string">"Prolonged QRS Wave"</span>,<span class="keyword">...</span>
+    <span class="string">"Left Axis Deviation"</span>,<span class="string">"Right Axis Deviation"</span>,<span class="string">"Extreme Axis Deviation"</span>];
+criteria = [<span class="string">"Measured Heart Rate &gt; 100 bpm"</span>,<span class="string">"Measured Heart Rate &lt; 60 bpm"</span>,<span class="keyword">...</span>
+    <span class="string">"Sum of QRS Voltage &lt; 0.5 mV"</span>,<span class="string">"Sum of QRS Voltage &gt; 2.0 mV"</span>,<span class="keyword">...</span>
+    <span class="string">"QRS Interval &gt; 0.08 s"</span>,<span class="string">"270 &lt; MEA &lt; 330"</span>,<span class="string">"100 &lt; MEA &lt; 180"</span>,<span class="string">"180 &lt; MEA &lt; 270"</span>];
+T2 = table(diagnosis',criteria');
+T2.Properties.Description = <span class="string">'Criteria Table'</span>;
+T2.Properties.VariableNames = [<span class="string">"Diagnosis"</span>,<span class="string">"Criteria"</span>];
+writetable(T2,filename2,<span class="string">'Sheet'</span>,<span class="string">'Data'</span>);
+
+disp(T)
+disp(T2)
+</pre>
+<pre class="codeoutput">                  Type                  Healthy State    Diseased State
+    ________________________________    _____________    ______________
+
+    "Measured Heart Rate (bpm)"          {[70.8263]}      {[185.2198]} 
+    "Maximum Voltage (mV)"               {[ 0.3338]}      {[  0.1323]} 
+    "Minimum Voltage (mV)"               {[-0.0508]}      {[ -0.3072]} 
+    "Average P-Q Interval (s)"           {[ 0.0756]}      {["N/A"   ]} 
+    "Average P-R Interval (s)"           {[ 0.1125]}      {["N/A"   ]} 
+    "Average Q-T Interval (s)"           {[ 0.3019]}      {["N/A"   ]} 
+    "Mean Electrical Axis (degrees)"     {[80.5383]}      {[ 57.6793]} 
+
+           Diagnosis                       Criteria            
+    ________________________    _______________________________
+
+    "High BPM"                  "Measured Heart Rate &gt; 100 bpm"
+    "Low BPM"                   "Measured Heart Rate &lt; 60 bpm" 
+    "Low Voltage"               "Sum of QRS Voltage &lt; 0.5 mV"  
+    "High Voltage"              "Sum of QRS Voltage &gt; 2.0 mV"  
+    "Prolonged QRS Wave"        "QRS Interval &gt; 0.08 s"        
+    "Left Axis Deviation"       "270 &lt; MEA &lt; 330"              
+    "Right Axis Deviation"      "100 &lt; MEA &lt; 180"              
+    "Extreme Axis Deviation"    "180 &lt; MEA &lt; 270"              
+
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2023b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% Part 1
+clear; clc; close all
+
+% Import healthy data
+healthy = readtable("Lab2_Healthy_Data_ECG.xlsx");
+
+healthy_time = healthy.Time;
+healthy_leadI = healthy.LeadI./1000;
+healthy_leadII = healthy.LeadII./1000;
+healthy_leadIII = healthy.LeadIII./1000;
+healthy_aVR = healthy.aVR./1000;
+healthy_aVL = healthy.aVL./1000;
+healthy_aVF = healthy.aVF./1000;
+
+% Detrend healthy data
+healthy_leads = [healthy_leadI,healthy_leadII,healthy_leadIII,healthy_aVR,healthy_aVL,healthy_aVF];
+detrend_healthy_leads = [];
+for i = 1:6
+    [p1, ~, mu1] = polyfit(healthy_time,healthy_leads(:,i),7);
+    detrend_healthy_leads(:,end+1) = healthy_leads(:,i) - polyval(p1, healthy_time, [], mu1);
+end
+
+% Plot ECG data
+figure(Name = '6-Lead ECG Healthy')
+subplot_titles_1 = ["Healthy Lead I","Healthy Lead II","Healthy Lead III","Healthy Lead aVR",...
+    "Healthy Lead aVL","Healthy Lead aVF"];
+for i = 1:6
+    subplot(2,3,i)
+    plot(healthy_time,detrend_healthy_leads(:,i))
+    title(subplot_titles_1(i))
+    xlabel('Time (s)')
+    ylabel('mV')
+end
+
+% Derive LeadIII, aVF, aVL, aVR
+Cal_LeadIII = detrend_healthy_leads(:,2) - detrend_healthy_leads(:,1);
+Cal_aVF = ((2.*detrend_healthy_leads(:,2))-detrend_healthy_leads(:,1))./(sqrt(3));
+Cal_aVL = ((2.*detrend_healthy_leads(:,1))-detrend_healthy_leads(:,2))./(sqrt(3));
+Cal_aVR = -(detrend_healthy_leads(:,2)+detrend_healthy_leads(:,1))./(sqrt(3));
+
+a = isequal(Cal_LeadIII,detrend_healthy_leads(:,3));
+
+% Compare derived leads to actual
+figure(Name = 'Derived 6-Lead ECG')
+compare_derived = [Cal_LeadIII,detrend_healthy_leads(:,3),Cal_aVR,detrend_healthy_leads(:,4),...
+    Cal_aVL,detrend_healthy_leads(:,5),Cal_aVF,detrend_healthy_leads(:,6)];
+subplot_titles_2 = ["Derived Lead III","Healthy Lead III","Derived Lead aVR","Healthy Lead aVR"...
+    ,"Derived Lead aVL","Healthy Lead aVL","Derived Lead aVF","Healthy Lead aVF"];
+for i = 1:8
+    subplot(4,2,i)
+    plot(healthy_time,compare_derived(:,i))
+    title(subplot_titles_2(i))
+    xlabel('Time (s)')
+    ylabel('mV')
+end
+for i = 1:2:8
+    b = isequal(compare_derived(:,i),compare_derived(:,i+1));
+end
+%% Part 2
+
+% Average leads/detrend data
+average_healthy_lead = mean(detrend_healthy_leads,2);
+[p2, ~, mu2] = polyfit(healthy_time,average_healthy_lead,7);
+detrend_avg_healthy = average_healthy_lead - polyval(p2, healthy_time, [], mu2);
+smoothECG_healthy = sgolayfilt(detrend_avg_healthy,7,21);
+
+% Initialize PQRST arrays
+P_peaks_healthy = [];
+P_locs_healthy = [];
+Q_peaks_healthy = [];
+Q_locs_healthy = [];
+T_peaks_healthy = [];
+T_locs_healthy = [];
+S_peaks_healthy = [];
+S_locs_healthy = [];
+R_peaks_healthy = [];
+R_locs_healthy = [];
+
+% Find P, R, and T
+[PRT_peaks_healthy,PRT_locs_healthy] = findpeaks(smoothECG_healthy,NPeaks=25,MinPeakHeight=0.01,MinPeakDistance=20);
+
+for i = 1:length(PRT_peaks_healthy)
+    if mod(i-1,3) == 0
+        T_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        T_locs_healthy(end+1) = PRT_locs_healthy(i);
+    elseif  mod(i-2,3) == 0
+        P_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        P_locs_healthy(end+1) = PRT_locs_healthy(i);
+    else
+        R_peaks_healthy(end+1) = PRT_peaks_healthy(i);
+        R_locs_healthy(end+1) = PRT_locs_healthy(i);
+    end
+end
+
+% Find Q and S
+[QS_peaks_healthy,QS_locs_healthy] = findpeaks(-smoothECG_healthy,MinPeakHeight=0.020,MinPeakProminence=0.03);
+for i = 1:length(QS_peaks_healthy)
+    if mod(i-2,3) == 0
+        Q_peaks_healthy(end+1) = -QS_peaks_healthy(i);
+        Q_locs_healthy(end+1) = QS_locs_healthy(i);
+    elseif mod(i,3) == 0
+        S_peaks_healthy(end+1) = -QS_peaks_healthy(i);
+        S_locs_healthy(end+1) = QS_locs_healthy(i);
+    end
+end
+    
+% Plot PQRTS
+figure(Name = 'PQRST Plot')
+plot(healthy_time,smoothECG_healthy,'-');
+hold on
+scatter(healthy_time(P_locs_healthy),P_peaks_healthy,'v','filled');
+scatter(healthy_time(Q_locs_healthy),Q_peaks_healthy,'^','filled');
+scatter(healthy_time(R_locs_healthy),R_peaks_healthy,'v','filled');
+scatter(healthy_time(S_locs_healthy),S_peaks_healthy,'^','filled');
+scatter(healthy_time(T_locs_healthy),T_peaks_healthy,'v','filled');
+legend('','P','Q','R','S','T','Location','northeastoutside');
+xlabel('Time (s)');
+ylabel('mV');
+title('Mean ECG Signal Healthy')
+
+% Measure Heart Rate
+RR_int_healthy = [];
+for i = 1:length(S_locs_healthy)-1
+    RR_int_healthy(end+1) = healthy_time(R_locs_healthy(i+1))-healthy_time(R_locs_healthy(i));
+end
+average_RR_int_healthy = mean(RR_int_healthy);
+bpm_healthy = 60/average_RR_int_healthy;
+
+% Maximum and Minimum
+healthy_max = max(smoothECG_healthy);
+healthy_min = min(smoothECG_healthy);
+
+% Average Interval Calculations
+average_PQ_int_healthy = mean(healthy_time(Q_locs_healthy)-healthy_time(P_locs_healthy));
+average_PR_int_healthy = mean(healthy_time(R_locs_healthy)-healthy_time(P_locs_healthy));
+average_QT_int_healthy = mean(healthy_time(T_locs_healthy(2:end))-healthy_time(Q_locs_healthy));
+
+% MEA
+[peaks_healthy_I,~] = findpeaks(detrend_healthy_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks_healthy_III,~] = findpeaks(detrend_healthy_leads(:,3),MinPeakHeight=0.3,MinPeakDistance=20);
+x1_healthy = mean(peaks_healthy_I)*cosd(0);
+y1_healthy = mean(peaks_healthy_I)*sind(0);
+x2_healthy = mean(peaks_healthy_III)*cosd(120);
+y2_healthy = mean(peaks_healthy_III)*sind(120);
+slope_healthy = tand(120);
+slope_tang_healthy = -1/slope_healthy;
+y3_healthy = slope_tang_healthy*(x1_healthy-x2_healthy)+y2_healthy;
+magnitude_healthy = sqrt(x1_healthy^2 + y3_healthy^2);
+dir_healthy = atan2d(y3_healthy,x1_healthy);
+figure(Name = 'Mean Axis of Depolarization')
+c_healthy = compass([x1_healthy,x2_healthy,magnitude_healthy*cosd(dir_healthy)],[y1_healthy,y2_healthy,magnitude_healthy*sind(dir_healthy)]);
+c_healthy(3).LineWidth = 2;
+c_healthy(3).Color = 'r';
+view(0,-90)
+title('Mean Axis of Depolarization Healthy')
+legend('Healthy Lead I','Healthy Lead III','MEA')
+
+% Data for report
+healthy_data = {bpm_healthy,healthy_max,healthy_min,average_PQ_int_healthy,average_PR_int_healthy,average_QT_int_healthy,dir_healthy};
+%% Part 3 (Written Specifically for Ventricular Tachycardia)
+% Criteria for peaks from: 
+% https://ecgwaves.com/topic/ventricular-tachycardia-vt-ecg-treatment-causes-management/#:~:text=ECG%20features%20of%20ventricular%20tachycardia,-%E2%89%A53%20consecutive&text=Ventricular%20tachycardia%20with%20rate%20100,%E2%89%A50%2C12%20s).
+
+diseased = readtable("Lab2_Disease_Data_ECG.xlsx");
+diseased_time = diseased.Time;
+diseased_LeadI = diseased.LeadI;
+diseased_LeadII = diseased.LeadII;
+diseased_LeadIII = diseased.LeadIII;
+diseased_aVR = diseased.aVR;
+diseased_aVL = diseased.aVL;
+diseased_aVF = diseased.aVF;
+
+diseased_leads = [diseased_LeadI,diseased_LeadII,diseased_LeadIII,diseased_aVR,diseased_aVL,diseased_aVF];
+detrend_diseased_leads = [];
+for i = 1:6
+    [p3, ~, mu3] = polyfit(diseased_time,diseased_leads(:,i),7);
+    detrend_diseased_leads(:,end+1) = diseased_leads(:,i) - polyval(p3, diseased_time, [], mu3);
+end
+
+figure
+subplot_titles_2 = ["Diseased Lead I","Diseased Lead II","Diseased Lead III","Diseased Lead aVR","Diseased Lead aVL","Diseased Lead aVF"];
+for i = 1:6
+    subplot(3,2,i)
+    plot(diseased_time,detrend_diseased_leads(:,i))
+    title(subplot_titles_2(i))
+    xlabel('Time (s)')
+    ylabel('mV')
+end
+
+% Average leads/detrend data
+average_diseased_lead = mean(detrend_diseased_leads,2);
+[p4, ~, mu4] = polyfit(diseased_time,average_diseased_lead,7);
+detrend_avg_diseased = average_diseased_lead - polyval(p4, diseased_time, [], mu4);
+smoothECG_diseased = sgolayfilt(detrend_avg_diseased,7,21);
+
+% Find QRS peaks and ST peaks
+[QRS_peaks_diseased,QRS_locs_diseased] = findpeaks(smoothECG_diseased,MinPeakHeight=0.01,MinPeakDistance=20);
+
+[ST_peaks_diseased,ST_locs_diseased] = findpeaks(-smoothECG_diseased,MinPeakHeight=0.020,MinPeakProminence=0.03);
+    
+figure(Name = 'PQRST Plot')
+plot(diseased_time,smoothECG_diseased,'-');
+hold on
+scatter(diseased_time(QRS_locs_diseased),QRS_peaks_diseased,'v','filled');
+scatter(diseased_time(ST_locs_diseased),-ST_peaks_diseased,'^','filled');
+legend('','QRS','ST','Location','northeastoutside');
+xlabel('Time (s)');
+ylabel('mV');
+xlabel('Time (s)');
+ylabel('mV');
+title('Mean ECG Signal Diseased')
+
+% Measured Heart Rate
+RR_int_diseased = [];
+for i = 1:length(QRS_locs_diseased)-1
+    RR_int_diseased(end+1) = diseased_time(QRS_locs_diseased(i+1))-diseased_time(QRS_locs_diseased(i));
+end
+average_RR_int_diseased = mean(RR_int_diseased);
+bpm_diseased = 60/average_RR_int_diseased;
+
+% Maximum and Minimum
+diseased_max = max(smoothECG_diseased);
+diseased_min = min(smoothECG_diseased);
+
+% Average Interval Calculations (NO Specific P, Q, R, S, T peaks)
+% % average_PQ_int_diseased = mean(diseased_time(Q_locs_diseased)-diseased_time(P_locs_diseased))
+% % average_PR_int_diseased = mean(diseased_time(R_locs_diseased)-diseased_time(P_locs_diseased))
+% % average_QT_int_diseased = mean(diseased_time(T_locs_diseased(2:end))-diseased_time(Q_locs_diseased))
+
+% MEA
+[peaks_diseased_I,~] = findpeaks(detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks_diseased_III,~] = findpeaks(detrend_diseased_leads(:,3),MinPeakHeight=0.3,MinPeakDistance=20);
+x1_diseased = mean(peaks_diseased_I)*cosd(0);
+y1_diseased = mean(peaks_diseased_I)*sind(0);
+x2_diseased = mean(peaks_diseased_III)*cosd(120);
+y2_diseased = mean(peaks_diseased_III)*sind(120);
+slope_diseased = tand(120);
+slope_tang_diseased = -1/slope_diseased;
+y3_diseased = slope_tang_diseased*(x1_diseased-x2_diseased)+y2_diseased;
+magnitude_diseased = sqrt(x1_diseased^2 + y3_diseased^2);
+dir_diseased = atan2d(y3_diseased,x1_diseased);
+figure(Name = 'Mean Axis of Depolarization Diseased')
+c_diseased = compass([x1_diseased,x2_diseased,magnitude_diseased*cosd(dir_diseased)],[y1_diseased,y2_diseased,magnitude_diseased*sind(dir_diseased)]);
+c_diseased(3).LineWidth = 2;
+c_diseased(3).Color = 'r';
+view(0,-90)
+title('Mean Axis of Depolarization Diseased')
+legend('Healthy Lead I','Healthy Lead III','MEA')
+
+% Data for report
+diseased_data = {bpm_diseased,diseased_max,diseased_min,"N/A","N/A","N/A",dir_diseased};
+%% Diagnosis
+% Find Voltages
+[peaks1,locs1] = findpeaks(detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks2,locs2] = findpeaks(detrend_diseased_leads(:,2),MinPeakHeight=0.15,MinPeakDistance=20);
+[peaks3,locs3] = findpeaks(detrend_diseased_leads(:,3),MinPeakHeight=0.15,MinPeakDistance=20);
+[npeaks1,nlocs1] = findpeaks(-detrend_diseased_leads(:,1),MinPeakHeight=0.15,MinPeakDistance=20);
+[npeaks2,nlocs2] = findpeaks(-detrend_diseased_leads(:,2),MinPeakHeight=0.15,MinPeakDistance=20);
+[npeaks3,nlocs3] = findpeaks(-detrend_diseased_leads(:,3),MinPeakHeight=0.15,MinPeakDistance=20);
+
+v1 = [];
+v2 = [];
+v3 = [];
+for i = 1:length(peaks1)
+    if mod(i,3) == 0
+        v1(end+1) = peaks1(i) - npeaks1(i);
+        v2(end+1) = peaks2(i) - npeaks2(i);
+        v3(end+1) = peaks3(i) - npeaks3(i);
+    end
+end
+
+sum_QRS_voltage = mean(v1) + mean(v2) + mean(v3);
+QRS_int_diseased = [];
+for i = 1:length(ST_locs_diseased)-1
+    QRS_int_diseased(end+1) = diseased_time(ST_locs_diseased(i+1))-diseased_time(ST_locs_diseased(i));
+end
+average_QRS_int_diseased = mean(QRS_int_diseased);
+
+issues = string();
+possible_diseases = string();
+
+% Heart Rate Check
+if bpm_diseased > 100
+    issues(end+1) = "High BPM";
+    possible_diseases(end+1) = "Tachycardia";
+elseif bpm_diseased < 60
+    issues(end+1) = "Low BPM";
+    possible_diseases(end+1) = "Bradycardia";
+end
+
+% Voltage Check
+if sum_QRS_voltage < 0.5
+    issues(end+1) = "Low Voltage";
+    possible_diseases(end+1) = "Pericardial fluid buildup";
+    possible_diseases(end+1) = "Pulmonary emphysema";
+    possible_diseases(end+1) = "Previous myocardial infarctions/diminished cardiac muscle mass";
+elseif sum_QRS_voltage >2.0
+    issues(end+1) = "High Voltage";
+    possible_diseases(end+1) = "Hypertrophy (High Voltage)";
+end
+
+% QRS Wave Check
+if average_QRS_int_diseased > 0.08
+    issues(end+1) = "Prolonged QRS Wave";
+    if average_QRS_int_diseased <= 0.12
+        possible_diseases(end+1) = "Hypertrophy (Prolonged QRS Wave)";
+        possible_diseases(end+1) = "Dilation";
+    elseif average_QRS_int_diseased > 0.12
+        possible_diseases(end+1) = "Damage to cardiac muscle";
+        possible_diseases(end+1) = "Blocks in the Purkinje system";
+    end
+end
+
+% MEA Check
+if dir_diseased >= 270 && dir_diseased <= 330
+    issues(end+1) = "Left Axis Deviation (LAD)";
+    possible_diseases(end+1) = "Left ventricular hypertrophy";
+    possible_diseases(end+1) = "Conduction defects: left bundle branch block, left anterior fascicular block";
+    possible_diseases(end+1) = "Inferior wall myocardial infarction";
+    possible_diseases(end+1) = "Preexcitation syndromes (LAD)";
+    possible_diseases(end+1) = "Ventricular ectopic rhythms (LAD)";
+    possible_diseases(end+1) = "Congenital heart disease (eg, primum atrial septal defect, endocardial cushion defect)";
+    possible_diseases(end+1) = "Hyperkalemia (LAD)";
+    possible_diseases(end+1) = "Emphysema (LAD)";
+    possible_diseases(end+1) = "Mechanical shift, such as with expiration or raised diaphragm";
+
+elseif dir_diseased >= 110 && dir_diseased <= 180
+    issues(end+1) = "Right Axis Deviation (RAD)";
+    possible_diseases(end+1) = "Right ventricular overload syndromes";
+    possible_diseases(end+1) = "Right ventricular hypertrophy";
+    possible_diseases(end+1) = "Conduction defects: left posterior fascicular block, right bundle branch block";
+    possible_diseases(end+1) = "Lateral wall myocardial infarction";
+    possible_diseases(end+1) = "Preexcitation syndromes (RAD)";
+    possible_diseases(end+1) = "Ventricular ectopic rhythms (RAD)";
+    possible_diseases(end+1) = "Congenital heart disease (eg, secundum atrial septal defect)";
+    possible_diseases(end+1) = "Dextrocardia";
+    possible_diseases(end+1) = "Left pneumothorax";
+    possible_diseases(end+1) = "Mechanical shift, such as with inspiration or emphysema";
+
+elseif dir_diseased > 180 && dir_diseased < 270
+    issues(end+1) = "Extreme Axis Deviation (EAD)";
+    possible_diseases(end+1) = "Ventricular ectopic rhythms (EAD)";
+    possible_diseases(end+1) = "Hyperkalemia (EAD)";
+    possible_diseases(end+1) = "Emphysema (EAD)";
+end
+
+if isempty(issues) == true
+    fprintf('Patient is healthy.\n')
+else
+    fprintf('Issues:\n')
+    fprintf('%s\n',issues(2:end))
+    fprintf('\nPossible Diseases:\n')
+    fprintf('%s\n',possible_diseases(2:end))
+end
+
+%% Tables for report
+filename = 'Lab2_report_table.xlsx';
+rownames = ["Measured Heart Rate (bpm)","Maximum Voltage (mV)","Minimum Voltage (mV)"...
+    ,"Average P-Q Interval (s)","Average P-R Interval (s)","Average Q-T Interval (s)","Mean Electrical Axis (degrees)"];
+T = table(rownames',healthy_data.',diseased_data');
+T.Properties.Description = 'Table for report';
+T.Properties.VariableNames = ["Type","Healthy State","Diseased State"];
+writetable(T,filename,'Sheet','Data');
+
+filename2 = 'Lab2_diagnostic_criteria.xlsx';
+diagnosis = ["High BPM","Low BPM","Low Voltage","High Voltage","Prolonged QRS Wave",...
+    "Left Axis Deviation","Right Axis Deviation","Extreme Axis Deviation"];
+criteria = ["Measured Heart Rate > 100 bpm","Measured Heart Rate < 60 bpm",...
+    "Sum of QRS Voltage < 0.5 mV","Sum of QRS Voltage > 2.0 mV",...
+    "QRS Interval > 0.08 s","270 < MEA < 330","100 < MEA < 180","180 < MEA < 270"];
+T2 = table(diagnosis',criteria');
+T2.Properties.Description = 'Criteria Table';
+T2.Properties.VariableNames = ["Diagnosis","Criteria"];
+writetable(T2,filename2,'Sheet','Data');
+
+disp(T)
+disp(T2)
+##### SOURCE END #####
+-->
+</body>
+</html>
